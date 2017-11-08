@@ -28,6 +28,51 @@ public class My12_Trees {
         }
     }
 
+
+    /**
+     * Given a BST node, return the node which has value just greater than the given node.
+
+     Example:
+     Given the tree :
+             100
+            /   \
+            98    102
+           /  \
+        96    99
+        \
+        97
+     Given 97, you should return the node corresponding to 98 as that's the value just greater than 97 in the tree.
+     If there are no successor in the tree ( the value is the largest in the tree, return NULL).
+
+     Using recursion is not allowed.
+
+     Assume that the value is always present in the tree.
+     * @param A
+     * @param B
+     * @return
+     */
+    public TreeNode getSuccessor(TreeNode A, int B) {
+        if( A==null) return null;
+        TreeNode travel = A;
+        TreeNode nextMaxNode = null;
+        while(travel.val != B){             //getting node for B
+            if(B < travel.val){
+                nextMaxNode = travel;       // case : when there is no right subtree - parent will be next successor
+                travel = travel.left;
+            } else{
+                travel = travel.right;
+            }
+        }
+
+        travel = travel.right;              //case : travel right to get the successor
+        while(travel != null){
+            nextMaxNode = travel;
+            travel = travel.left;           // go left for next successor
+        }
+
+        return nextMaxNode;
+    }
+
     /**
      * Given a binary tree, determine if it is a valid binary search tree (BST).
      * Assume a BST is defined as follows:
@@ -70,27 +115,7 @@ public class My12_Trees {
     }
 
 
-    public TreeNode getSuccessor(TreeNode A, int B) {
-        if( A==null) return null;
-        TreeNode travel = A;
-        TreeNode ret = null;
-        while(travel.val != B){
-            if(B < travel.val){
-                ret = travel;
-                travel = travel.left;
-            } else{
-                travel = travel.right;
-            }
-        }
 
-        travel = travel.right;
-        while(travel != null){
-            ret = travel;
-            travel = travel.left;
-        }
-
-        return ret;
-    }
 
 
     /**
@@ -104,16 +129,11 @@ public class My12_Trees {
         while( treeNode!=null || !stack.isEmpty()){
             while( treeNode!=null){
                 stack.push( treeNode);
-                treeNode=treeNode.left;
+                treeNode=treeNode.left;       //left subtree
             }
             treeNode=stack.pop();
             inorderList.add( treeNode.val);
-            treeNode=treeNode.right;
-//            if(treeNode == null && !stack.isEmpty()) {    //is this if condition necessary
-//                treeNode = stack.pop();
-//                inorderList.add(treeNode.val);
-//                treeNode = treeNode.right;
-//            }
+            treeNode=treeNode.right;          //right subtree
         }
         return inorderList;
     }
@@ -257,5 +277,49 @@ public class My12_Trees {
         return 0;
     }
 
+
+    /**
+     * Given an inorder traversal of a cartesian tree, construct the tree.
+     * - Cartesian tree : is a heap ordered binary tree, where the root is greater than all the elements in the subtree.
+     * - Note: You may assume that duplicates do not exist in the tree.
+
+     Example :
+     Input : [1 2 3]
+     Return :
+         3
+        /
+       2
+      /
+     1
+     * @param arrayList
+     * @return
+     */
+    public TreeNode buildTree(ArrayList<Integer> arrayList) {
+
+        /*
+        inorder traversal : (Left tree) root (Right tree)
+        Note that the root is the max element in the whole array. Based on the info, can you figure out the position
+        of the root in inorder traversal ? If so, can you separate out the elements which go in the left subtree and
+        right subtree ?
+        Once you have the inorder traversal for left subtree, you can recursively solve for left subtree.
+        Same for right subtree.
+         */
+
+        return help(arrayList, 0, arrayList.size()-1);
+    }
+    public TreeNode help(ArrayList<Integer> arrayList, int start, int end) {
+        if (start > end) return null;
+        if (start == end) { return new TreeNode( arrayList.get( start)); }
+
+        int maxIdx=start;
+        for (int i = start + 1; i<=end; i++) {
+            if ( arrayList.get(i) > arrayList.get( maxIdx)) maxIdx = i;
+        }
+
+        TreeNode root = new TreeNode( arrayList.get(maxIdx));
+        root.left = help( arrayList, start, maxIdx-1);
+        root.right = help( arrayList, maxIdx+1, end);
+        return root;
+    }
 
 }
